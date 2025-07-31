@@ -1,111 +1,638 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <title>Ajnabee</title>
-  <link rel="icon" href="img/favicon.png" />
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
-  <link href="css/style.css" rel="stylesheet" />
-  <link href="css/landing.css" rel="stylesheet" />
-  <link href="css/landing-phone.css" rel="stylesheet" />
-  <link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon/favicon-16x16.png">
-  <link rel="manifest" href="favicon/site.webmanifest">
-  <link rel="mask-icon" href="favicon/safari-pinned-tab.svg" color="#5bbad5">
-  <meta name="favicon/msapplication-TileColor" content="#da532c">
-  <meta name="favicon/theme-color" content="#333333">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tribe.run - Talk to Strangers</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #2c9f9f, #1a7a7a);
+            font-family: 'Tahoma', sans-serif;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Landing Page */
+        .landing {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #2c9f9f, #1a7a7a);
+            z-index: 1000;
+            transition: opacity 2s ease-out;
+        }
+
+        .landing.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .logo {
+            font-size: 4rem;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 2rem;
+            animation: pulse 2s infinite;
+        }
+
+        .tagline {
+            font-size: 1.5rem;
+            color: #b3e6e6;
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        .start-btn {
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            background: linear-gradient(145deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+        }
+
+        /* Spline Animation */
+        .spline-container {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            margin-bottom: 2rem;
+        }
+
+        .spline-orb {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+            background-size: 400% 400%;
+            animation: gradientShift 4s ease-in-out infinite, float 6s ease-in-out infinite;
+            box-shadow: 0 0 50px rgba(255, 255, 255, 0.3);
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-20px) rotate(120deg); }
+            66% { transform: translateY(10px) rotate(240deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Chat Interface */
+        .chat-container {
+            display: none;
+            width: 100%;
+            height: 100vh;
+            background: linear-gradient(135deg, #2c9f9f, #1a7a7a);
+            padding: 20px;
+        }
+
+        .chat-window {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #f0f0f0;
+            border: 2px solid #999;
+            border-radius: 8px;
+            box-shadow: inset 1px 1px 3px rgba(0,0,0,0.1);
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .title-bar {
+            background: linear-gradient(180deg, #4a90e2, #357abd);
+            color: white;
+            padding: 8px 12px;
+            font-weight: bold;
+            font-size: 11px;
+            border-bottom: 1px solid #2c5282;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .window-controls {
+            display: flex;
+            gap: 4px;
+        }
+
+        .control-btn {
+            width: 16px;
+            height: 14px;
+            border: 1px solid #333;
+            background: #ddd;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .status-bar {
+            background: #e8e8e8;
+            padding: 8px 12px;
+            border-bottom: 1px solid #ccc;
+            font-size: 11px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ff4444;
+        }
+
+        .status-dot.connected {
+            background: #44ff44;
+        }
+
+        .status-dot.searching {
+            background: #ffaa44;
+            animation: pulse-dot 1s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            background: white;
+            font-family: 'MS Sans Serif', sans-serif;
+            font-size: 11px;
+        }
+
+        .message {
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .message .strange {
+            color: #0066cc;
+            font-weight: bold;
+        }
+
+        .message .you {
+            color: #cc0066;
+            font-weight: bold;
+        }
+
+        .message-status {
+            color: #666;
+            font-style: italic;
+            margin-bottom: 8px;
+        }
+
+        .input-area {
+            border-top: 1px solid #ccc;
+            background: #f8f8f8;
+            padding: 10px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 4px 8px;
+            border: 1px solid #999;
+            border-radius: 2px;
+            font-family: 'MS Sans Serif', sans-serif;
+            font-size: 11px;
+        }
+
+        .send-btn, .new-btn, .disconnect-btn {
+            padding: 4px 12px;
+            background: linear-gradient(180deg, #f0f0f0, #d8d8d8);
+            border: 1px solid #999;
+            border-radius: 2px;
+            font-size: 11px;
+            cursor: pointer;
+            font-family: 'MS Sans Serif', sans-serif;
+        }
+
+        .send-btn:hover, .new-btn:hover, .disconnect-btn:hover {
+            background: linear-gradient(180deg, #e8e8e8, #d0d0d0);
+        }
+
+        .disconnect-btn {
+            background: linear-gradient(180deg, #ff6b6b, #ff5252);
+            color: white;
+            border-color: #d32f2f;
+        }
+
+        .new-btn {
+            background: linear-gradient(180deg, #4CAF50, #45a049);
+            color: white;
+            border-color: #2e7d32;
+        }
+
+        /* Scrollbar styling */
+        .messages::-webkit-scrollbar {
+            width: 16px;
+        }
+
+        .messages::-webkit-scrollbar-track {
+            background: #f0f0f0;
+            border: 1px solid #999;
+        }
+
+        .messages::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #ddd, #bbb);
+            border: 1px solid #999;
+        }
+
+        .typing-indicator {
+            color: #666;
+            font-style: italic;
+            font-size: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .chat-window {
+                height: 100vh;
+                border-radius: 0;
+                margin: 0;
+            }
+            
+            .landing .logo {
+                font-size: 2.5rem;
+            }
+            
+            .landing .tagline {
+                font-size: 1.2rem;
+                padding: 0 20px;
+            }
+        }
+    </style>
 </head>
-
 <body>
-  <div id="main">
-    <!-- top bar -->
-    <div id="top-bar">
-      <div id="logo">
-        <img width="20px" src="/assets/logo.svg" alt="Ajnabee" />
-      </div>
-      <div id="top-right">
-        <div id="peopleOnline">
-          <p><span>0</span>+ online now</p>
+    <!-- Landing Page -->
+    <div class="landing" id="landing">
+        <div class="spline-container">
+            <div class="spline-orb"></div>
         </div>
-        <button id="feedback-btn" class="button">Provide Feedback</button>
-      </div>
+        <div class="logo">Tribe.run</div>
+        <div class="tagline">Talk to strangers around the world<br>Anonymous • Real-time • Authentic</div>
+        <button class="start-btn" onclick="startChat()">Start Chatting</button>
     </div>
 
-    <!-- main content -->
-    <div id="content">
-      <!-- social message -->
-      <div id="social-message">
+    <!-- Chat Interface -->
+    <div class="chat-container" id="chatContainer">
+        <div class="chat-window">
+            <div class="title-bar">
+                <span>Tribe.run - Anonymous Chat</span>
+                <div class="window-controls">
+                    <div class="control-btn">_</div>
+                    <div class="control-btn">□</div>
+                    <div class="control-btn">×</div>
+                </div>
+            </div>
+            
+            <div class="status-bar">
+                <div class="status-indicator">
+                    <div class="status-dot" id="statusDot"></div>
+                    <span id="statusText">Connecting...</span>
+                </div>
+                <div>
+                    <span id="userCount">0+ online now</span>
+                </div>
+            </div>
 
-        <div id="message-content">
-          <p id="help-text"> Help Manipur save its people from conflict that is currently happening.
-            <br>
-            <br>
-            A total of 53,000 people have been displaced due to the ongoing conflict and more that 200 people have been
-            killed.
-            These are just reported figures with the real figures being much higher.
+            <div class="messages" id="messages"></div>
 
-            We stand with the people of Manipur, donate here to help bring peace again to the region.
-          </p>
-          <a href="https://www.gofundme.com/f/humanitarian-aid-to-victims-of-manipur-violence"> Help Manipur </a>
+            <div class="input-area">
+                <input type="text" class="message-input" id="messageInput" placeholder="Type your message..." disabled>
+                <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled>Send</button>
+                <button class="new-btn" id="newBtn" onclick="findNewStranger()">New</button>
+                <button class="disconnect-btn" id="disconnectBtn" onclick="disconnect()">Disconnect</button>
+            </div>
         </div>
-
-        <img id="message-image" src="./assets/peace.webp"></img>
-
-      </div>
-
-      <!-- instructions -->
-      <div id="instructions">
-        <p>Video is being monitored. Keep it clean.</p>
-      </div>
-
-      <div id="options-container">
-        <!-- interests -->
-        <div id="interest-container">
-          <p>What do you wanna talk about?</p>
-          <input type="text" id="interests" placeholder="Add your interests (optional)" />
-          <div id="tag-container"></div>
-        </div>
-
-        <!-- chat options -->
-        <div id="chat-options">
-          <p>Start chatting</p>
-          <div id="button-container">
-            <button class="button"id="text-btn">Text</button>
-            <p>or</p>
-            <button class="button" id="video-btn">Video</button>
-          </div>
-        </div>
-      </div>
-
-      <div id="footer">
-        <p>&#169;Ajnabee 2023</p>
-        <a href="mailto://contact@ajnabee.live">Contact us</a>
-      </div>
     </div>
-    <div id="disclaimer">
-      <p>By using the Ajnabee website, and/or related products and/or services (<b>Ajnabee</b>), you agree to the following terms. Do not use Ajnabee if you are under 18 years old. Do not transmit nudity, sexually harass anyone, publicize other people's private information, make statements that defame or libel anyone, violate intellectual property rights, use automated programs to start chats, or behave in any other inappropriate or illegal way on Ajnabee. Do not behave inappropriately on Ajnabee, and understand that human behavior is fundamentally uncontrollable. The people you encounter on Ajnabee may not behave appropriately, and they are solely responsible for their own behavior. Use Ajnabee at your own peril. Disconnect if anyone makes you feel uncomfortable. You may be denied access to Ajnabee for inappropriate behavior or for any other reason. AJNABEE IS PROVIDED AS IS AND TO THE MAXIMUM EXTENT ALLOWED BY APPLICABLE LAW. IT IS PROVIDED WITHOUT ANY WARRANTY, EXPRESS OR IMPLIED, NOT EVEN A WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE TO THE MAXIMUM EXTENT ALLOWED BY APPLICABLE LAW. THE PROVIDER OF AJNABEE AND ANY OTHER PERSON OR ENTITY ASSOCIATED WITH AJNABEE'S OPERATION SHALL NOT BE HELD LIABLE FOR ANY DIRECT DAMAGES ARISING FROM THE USE OF AJNABEE, OR ANY OTHER DAMAGES RELATED TO AJNABEE OF ANY KIND WHATSOEVER. By using Ajnabee, you accept the practices outlined in Ajnabee's Privacy Policy and information about cookies.</p>
-    </div>
-  </div>
 
-  <!-- feedback popup -->
-  <div id="feedbackModal" class="modal">
-    <div class="modal-content">
-      <span class="close">&times;</span>
-      <h2>Provide Feedback</h2>
-      <form id="feedbackForm">
-        <textarea id="feedbackText" rows="10" placeholder="Your feedback..." required></textarea>
-        <input type="submit" class="button" id="submit-btn" value="Submit" />
-      </form>
-    </div>
-  </div>
+    <script>
+        // WebSocket URL - change this to match your server
+        const WEBSOCKET_URL = "ws://localhost:8080";
+        
+        let ws;
+        let connected = false;
+        let isTyping = false;
+        let typingTimeout;
 
-  <script defer src="./js/main.js"></script>
-  <script defer src="./js/landing.js" type="module"></script>
+        // Escape HTML to prevent XSS
+        function esc(text) {
+            const txt = document.createTextNode(text);
+            const p = document.createElement('p');
+            p.appendChild(txt);
+            return p.innerHTML;
+        }
+
+        // WebSocket extensions (matching Ajnabee's protocol)
+        function initWebSocket() {
+            ws.channels = new Map();
+            
+            ws.addEventListener('message', (message) => {
+                try {
+                    const { channel, data } = JSON.parse(message.data.toString());
+                    const callback = ws.channels.get(channel);
+                    if (callback) {
+                        callback(data);
+                    }
+                } catch (e) {
+                    console.error('WebSocket message error:', e);
+                }
+            });
+        }
+
+        function emit(channel, data) {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ channel, data }));
+            }
+        }
+
+        function register(channel, callback) {
+            ws.channels.set(channel, callback);
+        }
+
+        function startChat() {
+            const landing = document.getElementById('landing');
+            const chatContainer = document.getElementById('chatContainer');
+            
+            landing.classList.add('fade-out');
+            
+            setTimeout(() => {
+                landing.style.display = 'none';
+                chatContainer.style.display = 'block';
+                initializeChat();
+            }, 2000);
+        }
+
+        async function initializeChat() {
+            // Connect to Ajnabee WebSocket server
+            ws = new WebSocket(WEBSOCKET_URL);
+            
+            ws.addEventListener('open', () => {
+                initWebSocket();
+                console.log('Connected to server');
+                
+                // Set up message handlers
+                setupMessageHandlers();
+                
+                // Start looking for a partner
+                addMessage('system', 'Connected to server. Looking for someone to chat with...');
+                updateStatus('searching', 'Looking for stranger...');
+                
+                // Request people online count
+                emit('peopleOnline');
+                
+                // Start matching (text chat with no interests)
+                emit('match', { data: 'text', interests: [] });
+                
+                // Set up periodic people online updates
+                setInterval(() => {
+                    if (ws.readyState === WebSocket.OPEN) {
+                        emit('peopleOnline');
+                    }
+                }, 30000);
+            });
+
+            ws.addEventListener('close', () => {
+                updateStatus('disconnected', 'Disconnected from server');
+                addMessage('system', 'Disconnected from server.');
+                disableInput();
+            });
+
+            ws.addEventListener('error', (error) => {
+                console.error('WebSocket error:', error);
+                updateStatus('disconnected', 'Connection error');
+                addMessage('system', 'Connection error occurred.');
+                disableInput();
+            });
+        }
+
+        function setupMessageHandlers() {
+            // Handle people online count
+            register('peopleOnline', (count) => {
+                document.getElementById('userCount').textContent = `${count}+ online now`;
+            });
+
+            // Handle successful connection to stranger
+            register('connected', (commonInterests) => {
+                connected = true;
+                updateStatus('connected', 'Stranger connected!');
+                clearMessages();
+                addMessage('system', 'You\'re now chatting with a stranger. Say hello!');
+                
+                if (commonInterests && commonInterests.length > 0) {
+                    const interestText = commonInterests.join(', ');
+                    addMessage('system', `You both like: ${interestText}`);
+                }
+                
+                enableInput();
+            });
+
+            // Handle incoming messages
+            register('message', (message) => {
+                addMessage('stranger', message);
+            });
+
+            // Handle typing indicators
+            register('typing', (isTyping) => {
+                if (isTyping) {
+                    showTypingIndicator();
+                } else {
+                    hideTypingIndicator();
+                }
+            });
+
+            // Handle stranger disconnect
+            register('disconnect', () => {
+                connected = false;
+                updateStatus('disconnected', 'Stranger disconnected');
+                addMessage('system', 'Stranger has disconnected.');
+                disableInput();
+            });
+        }
+
+        function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value.trim();
+            
+            if (message && connected) {
+                addMessage('you', message);
+                emit('message', esc(message));
+                messageInput.value = '';
+                
+                // Stop typing indicator
+                if (isTyping) {
+                    isTyping = false;
+                    emit('typing', false);
+                }
+            }
+        }
+
+        function findNewStranger() {
+            if (connected) {
+                emit('disconnect');
+            }
+            connected = false;
+            clearMessages();
+            updateStatus('searching', 'Looking for new stranger...');
+            addMessage('system', 'Looking for someone new to chat with...');
+            disableInput();
+            
+            // Start new match
+            setTimeout(() => {
+                emit('match', { data: 'text', interests: [] });
+            }, 1000);
+        }
+
+        function disconnect() {
+            if (ws) {
+                if (connected) {
+                    emit('disconnect');
+                }
+                ws.close();
+            }
+            // Refresh the page to start over
+            location.reload();
+        }
+
+        function addMessage(type, message) {
+            const messages = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            
+            if (type === 'system') {
+                messageDiv.className = 'message-status';
+                messageDiv.textContent = message;
+            } else {
+                messageDiv.className = 'message';
+                const timestamp = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                const prefix = type === 'you' ? 'You:' : 'Stranger:';
+                const className = type === 'you' ? 'you' : 'strange';
+                
+                messageDiv.innerHTML = `[${timestamp}] <span class="${className}">${prefix}</span> ${esc(message)}`;
+            }
+            
+            messages.appendChild(messageDiv);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        function updateStatus(status, text) {
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
+            
+            statusDot.className = `status-dot ${status}`;
+            statusText.textContent = text;
+        }
+
+        function enableInput() {
+            document.getElementById('messageInput').disabled = false;
+            document.getElementById('sendBtn').disabled = false;
+            document.getElementById('messageInput').focus();
+        }
+
+        function disableInput() {
+            document.getElementById('messageInput').disabled = true;
+            document.getElementById('sendBtn').disabled = true;
+        }
+
+        function clearMessages() {
+            document.getElementById('messages').innerHTML = '';
+        }
+
+        function showTypingIndicator() {
+            const messages = document.getElementById('messages');
+            
+            // Remove existing typing indicator
+            const existing = document.getElementById('typing-indicator');
+            if (existing) existing.remove();
+            
+            const typingDiv = document.createElement('div');
+            typingDiv.id = 'typing-indicator';
+            typingDiv.className = 'message-status typing-indicator';
+            typingDiv.textContent = 'Stranger is typing...';
+            messages.appendChild(typingDiv);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            const existing = document.getElementById('typing-indicator');
+            if (existing) existing.remove();
+        }
+
+        // Handle input events
+        document.addEventListener('DOMContentLoaded', function() {
+            const messageInput = document.getElementById('messageInput');
+            
+            messageInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                    return;
+                }
+                
+                // Handle typing indicator
+                if (connected && !isTyping) {
+                    isTyping = true;
+                    emit('typing', true);
+                }
+                
+                clearTimeout(typingTimeout);
+                typingTimeout = setTimeout(() => {
+                    if (isTyping) {
+                        isTyping = false;
+                        emit('typing', false);
+                    }
+                }, 1000);
+            });
+
+            // Handle escape key for new chat
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    findNewStranger();
+                    e.preventDefault();
+                }
+            });
+        });
+    </script>
 </body>
-
 </html>
